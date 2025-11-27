@@ -1,15 +1,14 @@
-"use client";
-
 import './globals.css';
 import { Inter } from 'next/font/google';
-import { AuthProvider } from '@/context/AuthContext'; // Ajusta la ruta según tu estructura
+// ✅ FIX: Usamos el alias '@/' para importar AuthProvider de forma segura
+import { AuthProvider } from '@/context/AuthContext';
 
-// Fuente de Google
-const inter = Inter({
+const inter = Inter({ 
   subsets: ['latin'],
   variable: '--font-inter',
 });
 
+// ✅ FIX: Esto solo funciona si el componente es Server Side (sin 'use client')
 export const metadata = {
   title: 'Haylugar - Encuentra tu espacio',
   description: 'Marketplace de disponibilidad en tiempo real para negocios.',
@@ -23,7 +22,6 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${inter.className} antialiased`}>
-        {/* Envolvemos toda la app en el AuthProvider */}
         <AuthProvider>
           {children}
         </AuthProvider>
