@@ -1,4 +1,4 @@
-'use client'; // 👈 ESTO ES OBLIGATORIO PARA USAR CONTEXT/HOOKS
+'use client'; 
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -24,7 +24,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    if (!auth) return;
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user ? user : null);
       const currentUserId = await ensureAuthAndGetUserId();
       setUserId(currentUserId);
