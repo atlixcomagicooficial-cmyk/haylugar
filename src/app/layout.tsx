@@ -1,11 +1,12 @@
-import './globals.css';
-// ⚠️ FIX: Reemplazamos la fuente 'Geist' con 'Inter' para asegurar la compatibilidad en el entorno de Vercel.
-import { Inter } from 'next/font/google';
+"use client";
 
-// Configurar el font 'Inter' de Google Fonts
-const inter = Inter({ 
+import './globals.css';
+import { Inter } from 'next/font/google';
+import { AuthProvider } from '@/context/AuthContext'; // Ajusta la ruta según tu estructura
+
+// Fuente de Google
+const inter = Inter({
   subsets: ['latin'],
-  // Definir la variable CSS del font si es necesario
   variable: '--font-inter',
 });
 
@@ -21,8 +22,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      {/* Aplicamos la clase del font 'Inter' al body */}
-      <body className={`${inter.className} antialiased`}>{children}</body>
+      <body className={`${inter.className} antialiased`}>
+        {/* Envolvemos toda la app en el AuthProvider */}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </body>
     </html>
   );
 }
