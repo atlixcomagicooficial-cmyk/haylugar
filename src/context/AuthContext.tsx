@@ -1,8 +1,7 @@
-'use client'; 
+'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-// Usamos alias @/ para asegurar la ruta a firebase config
 import { auth, ensureAuthAndGetUserId } from '@/firebase/config'; 
 
 interface AuthContextType {
@@ -24,13 +23,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!auth) return;
-      const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    console.log("Iniciando Auth Provider...");
+    
+    // Safety check
+    if (!auth) {
+      console.error("Firebase Auth no está inicializado.");
+      setIsLoading(false);
+      return;
+    }
+
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      console.log("Estado de Auth cambiado:", user ? "Usuario encontrado" : "Sin usuario");
       setCurrentUser(user ? user : null);
-      const currentUserId = await ensureAuthAndGetUserId();
-      setUserId(currentUserId);
+      
+      try {
+        const currentUserId = await ensureAuthAndGetUserId();
+        console.log("UserID obtenido:", currentUserId);
+        setUserId(currentUserId);
+      } catch (err) {
+        console.error("Error obteniendo UserID:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }, (error) => {
+      console.error("Error en el listener de Auth:", error);
       setIsLoading(false);
     });
+
     return () => unsubscribe();
   }, []); 
 
@@ -41,15 +60,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated: !!currentUser,
   };
 
+  // CAMBIO IMPORTANTE: Renderizamos children SIEMPRE.
+  // Esto permite que page.tsx maneje la UI de carga y muestre los errores de timeout.
   return (
     <AuthContext.Provider value={value}>
-      {isLoading ? (
-        <div className="flex justify-center items-center h-screen bg-gray-50">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
-        </div>
-      ) : (
-        children
-      )}
+      {children}
     </AuthContext.Provider>
   );
 };
